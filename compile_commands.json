@@ -1,0 +1,40 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-I./src",
+      "-I./include",
+      "-DDEV",
+      "-fsanitize=address",
+      "-o",
+      "noisegen.x86_64",
+      "src/main.c"
+    ],
+    "directory": "/home/rafael/dev/noisegen",
+    "file": "/home/rafael/dev/noisegen/src/main.c",
+    "output": "/home/rafael/dev/noisegen/noisegen.x86_64"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-I./src",
+      "-I./include",
+      "-DDEV",
+      "-fsanitize=address",
+      "-o",
+      "noisegen.x86_64",
+      "src/manager.c"
+    ],
+    "directory": "/home/rafael/dev/noisegen",
+    "file": "/home/rafael/dev/noisegen/src/manager.c",
+    "output": "/home/rafael/dev/noisegen/noisegen.x86_64"
+  }
+]

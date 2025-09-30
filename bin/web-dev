@@ -1,0 +1,17 @@
+#!/bin/bash
+
+: ${PORT:=0}
+
+if [ $PORT == 0 ]
+then
+    source .env
+fi
+
+if [ $PORT == 0 ]
+then
+    PORT=3000
+fi
+
+make web-dev
+cd .dev-server
+python -m http.server ${PORT}

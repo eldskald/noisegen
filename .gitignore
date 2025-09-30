@@ -1,0 +1,16 @@
+
+# project
+/lib
+/include
+/.dev-server
+noisegen.*
+linux.zip
+windows.zip
+webgl.zip
+.env
+
+# ripgrep
+.rgignore
+
+# clangd
+/.cache

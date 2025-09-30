@@ -1,0 +1,45 @@
+#!/bin/bash
+
+source .env
+
+# Paths to compile raylib for web
+EMSCRIPTEN_PATH=${EMSDK_PATH}/upstream/emscripten
+PATH=${PATH}:${EMSCRIPTEN_PATH}
+
+# Clean up old builds
+rm -rf ./lib ./include
+mkdir -p ./lib ./include ./lib/linux ./lib/windows ./lib/webgl
+
+# raylib for linux
+git clone --depth 1 --branch 5.5 https://github.com/raysan5/raylib.git
+cd raylib/src
+make PLATFORM=PLATFORM_DESKTOP
+cp libraylib.a ../../lib/linux
+cp raylib.h ../../include
+cp raymath.h ../../include
+cp external/glfw/include/GLFW/glfw3.h ../../include
+cd ../..
+rm -rf raylib
+
+# raylib for windows
+git clone --depth 1 --branch 5.5 https://github.com/raysan5/raylib.git
+cd raylib/src
+make PLATFORM=PLATFORM_DESKTOP OS=Windows_NT CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar
+cp libraylib.a ../../lib/windows
+cd ../..
+rm -rf raylib
+
+# raylib for web
+git clone --depth 1 --branch 5.5 https://github.com/raysan5/raylib.git
+cd raylib/src
+make PLATFORM=PLATFORM_WEB -B
+cp libraylib.a ../../lib/webgl
+cd ../..
+rm -rf raylib
+
+# raygui
+git clone --depth 1 --branch 4.0 https://github.com/raysan5/raygui.git
+cd raygui/src
+cp raygui.h ../../include
+cd ../..
+rm -rf raygui

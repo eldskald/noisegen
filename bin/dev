@@ -1,0 +1,5 @@
+#!/bin/bash
+
+make dev APP_NAME=.dev
+./.dev.*
+rm .dev.*
