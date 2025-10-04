@@ -17,6 +17,10 @@ static float old_freq = TEX_START_FREQ;
 static float new_freq = TEX_START_FREQ;
 static bool old_seamless = TEX_START_SEAMLESS;
 static bool new_seamless = TEX_START_SEAMLESS;
+static float old_range_min = TEX_START_RANGE_MIN;
+static float new_range_min = TEX_START_RANGE_MIN;
+static float old_range_max = TEX_START_RANGE_MAX;
+static float new_range_max = TEX_START_RANGE_MAX;
 
 static bool editing_filename = false;
 static bool editing_seed = false;
@@ -183,6 +187,37 @@ void _layout_draw() {
                 &new_seamless);
     if (new_seamless != old_seamless) _opensimplex_set_seamless(new_seamless);
     old_seamless = new_seamless;
+
+    // Range controls
+    GuiLabel((Rectangle){RANGE_SELECTOR_LABEL_X,
+                         RANGE_SELECTOR_LABEL_Y,
+                         RANGE_SELECTOR_LABEL_W,
+                         RANGE_SELECTOR_LABEL_H},
+             RANGE_SELECTOR_LABEL);
+    GuiSlider((Rectangle){RANGE_SELECTOR_MIN_X,
+                          RANGE_SELECTOR_MIN_Y,
+                          RANGE_SELECTOR_MIN_W,
+                          RANGE_SELECTOR_MIN_H},
+              RANGE_SELECTOR_MIN_LABEL,
+              TextFormat("%.2f", old_range_min),
+              &new_range_min,
+              RANGE_SELECTOR_MIN_MIN,
+              RANGE_SELECTOR_MIN_MAX);
+    GuiSlider((Rectangle){RANGE_SELECTOR_MAX_X,
+                          RANGE_SELECTOR_MAX_Y,
+                          RANGE_SELECTOR_MAX_W,
+                          RANGE_SELECTOR_MAX_H},
+              TextFormat("%.2f", old_range_max),
+              RANGE_SELECTOR_MAX_LABEL,
+              &new_range_max,
+              RANGE_SELECTOR_MAX_MIN,
+              RANGE_SELECTOR_MAX_MAX);
+    if (new_range_min != old_range_min)
+        _opensimplex_set_range_min(new_range_min);
+    if (new_range_max != old_range_max)
+        _opensimplex_set_range_max(new_range_max);
+    old_range_min = new_range_min;
+    old_range_max = new_range_max;
 
     // Popups
     if (msgbox_export_success || msgbox_export_failure) {
