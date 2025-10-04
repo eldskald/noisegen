@@ -31,13 +31,24 @@ Color __calc_color(double val) {
 double __calc_value(int i, int j) {
     if (seamless) {
         return OpenSimplex2F_noise4_Classic(
-            ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
+            ctx,
+            sin(TAU * (double)i / res_x) * freq * PI,
+            cos(TAU * (double)i / res_x) * freq * PI,
+            sin(TAU * (double)j / res_y) * freq * PI,
+            cos(TAU * (double)j / res_y) * freq * PI);
     }
-    return OpenSimplex2F_noise4_Classic(ctx,
-                                        sin(TAU * (double)i) * freq / FACTOR,
-                                        cos(TAU * (double)i) * freq / FACTOR,
-                                        sin(TAU * (double)j) * freq / FACTOR,
-                                        cos(TAU * (double)j) * freq / FACTOR);
+    return OpenSimplex2F_noise4_Classic(
+        ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
+}
+
+void __seed() {
+    OpenSimplex2F(seed, &ctx);
+}
+
+void __resize() {
+    UnloadRenderTexture(final);
+    final = LoadRenderTexture(res_x, res_y);
+    SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
 }
 
 void __generate() {
@@ -52,7 +63,8 @@ void __generate() {
 
 void _opensimplex_init() {
     final = LoadRenderTexture(res_x, res_y);
-    OpenSimplex2F(seed, &ctx);
+    SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
+    __seed();
     __generate();
 }
 
@@ -68,12 +80,14 @@ Texture2D _opensimplex_get() {
 
 void _opensimplex_set_seed(int new_val) {
     seed = new_val;
+    __seed();
     __generate();
 }
 
-void _opensimplex_set_res(int new_val) {
-    res_x = new_val;
-    res_y = new_val;
+void _opensimplex_set_res(int new_x, int new_y) {
+    res_x = new_x;
+    res_y = new_y;
+    __resize();
     __generate();
 }
 
