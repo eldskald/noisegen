@@ -31,13 +31,14 @@ Color __calc_color(double val) {
 double __calc_value(int i, int j) {
     if (seamless) {
         return OpenSimplex2F_noise4_Classic(
-            ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
+            ctx,
+            sin(TAU * (double)i / res_x) * freq * PI,
+            cos(TAU * (double)i / res_x) * freq * PI,
+            sin(TAU * (double)j / res_y) * freq * PI,
+            cos(TAU * (double)j / res_y) * freq * PI);
     }
-    return OpenSimplex2F_noise4_Classic(ctx,
-                                        sin(TAU * (double)i) * freq / res_x,
-                                        cos(TAU * (double)i) * freq / res_x,
-                                        sin(TAU * (double)j) * freq / res_y,
-                                        cos(TAU * (double)j) * freq / res_y);
+    return OpenSimplex2F_noise4_Classic(
+        ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
 }
 
 void __seed() {

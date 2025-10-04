@@ -9,7 +9,7 @@ void _manager_init() {
 #ifndef DEV
     SetTraceLogLevel(LOG_NONE);
 #endif
-    InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, APP_NAME " - " APP_VERSION);
+    InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, APP_NAME " " APP_VERSION);
 
     _opensimplex_init();
 

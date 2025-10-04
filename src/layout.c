@@ -8,6 +8,10 @@
 static int seed = TEX_START_SEED;
 static int res_x = TEX_START_RES_X;
 static int res_y = TEX_START_RES_Y;
+static float old_freq = TEX_START_FREQ;
+static float new_freq = TEX_START_FREQ;
+static bool old_seamless = TEX_START_SEAMLESS;
+static bool new_seamless = TEX_START_SEAMLESS;
 
 static bool editing_seed = false;
 static bool editing_res_x = false;
@@ -24,7 +28,7 @@ void _layout_draw() {
                          APP_NAME_LABEL_Y,
                          APP_NAME_LABEL_W,
                          APP_NAME_LABEL_H},
-             APP_NAME " - " APP_VERSION);
+             APP_NAME " " APP_VERSION);
 
     // Texture at the right side
     int tex_w = 0;
@@ -93,6 +97,33 @@ void _layout_draw() {
         editing_res_y = !editing_res_y;
         _opensimplex_set_res(res_x, res_y);
     }
+
+    // Frequency controls
+    GuiLabel((Rectangle){FREQ_SELECTOR_LABEL_X,
+                         FREQ_SELECTOR_LABEL_Y,
+                         FREQ_SELECTOR_LABEL_W,
+                         FREQ_SELECTOR_LABEL_H},
+             FREQ_SELECTOR_LABEL);
+    GuiSlider(
+        (Rectangle){
+            FREQ_SELECTOR_X, FREQ_SELECTOR_Y, FREQ_SELECTOR_W, FREQ_SELECTOR_H},
+        "",
+        "",
+        &new_freq,
+        FREQ_SELECTOR_MIN,
+        FREQ_SELECTOR_MAX);
+    if (new_freq != old_freq) _opensimplex_set_freq(new_freq);
+    old_freq = new_freq;
+
+    // Seamless controls
+    GuiCheckBox((Rectangle){SEAMLESS_SELECTOR_X,
+                            SEAMLESS_SELECTOR_Y,
+                            SEAMLESS_SELECTOR_W,
+                            SEAMLESS_SELECTOR_H},
+                SEAMLESS_SELECTOR_LABEL,
+                &new_seamless);
+    if (new_seamless != old_seamless) _opensimplex_set_seamless(new_seamless);
+    old_seamless = new_seamless;
 
     EndDrawing();
 }
