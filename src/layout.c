@@ -4,7 +4,12 @@
 #include "raylib.h"
 #include <raygui.h>
 #include <stdbool.h>
+#include <string.h>
+#ifdef WEB
+#include <emscripten/emscripten.h>
+#endif
 
+static char filename[EXPORT_FILENAME_MAX_SIZE + 1] = "";
 static int seed = TEX_START_SEED;
 static int res_x = TEX_START_RES_X;
 static int res_y = TEX_START_RES_Y;
@@ -13,15 +18,25 @@ static float new_freq = TEX_START_FREQ;
 static bool old_seamless = TEX_START_SEAMLESS;
 static bool new_seamless = TEX_START_SEAMLESS;
 
+static bool editing_filename = false;
 static bool editing_seed = false;
 static bool editing_res_x = false;
 static bool editing_res_y = false;
+
+static bool msgbox_export_success = false;
+static bool msgbox_export_failure = false;
 
 void _layout_draw() {
     Texture2D opensimplex = _opensimplex_get();
 
     BeginDrawing();
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+    // Lock/Unlock GUI if some popup is showing
+    if (msgbox_export_success || msgbox_export_failure)
+        GuiLock();
+    else
+        GuiUnlock();
 
     // App name and version at the top
     GuiLabel((Rectangle){APP_NAME_LABEL_X,
@@ -42,11 +57,55 @@ void _layout_draw() {
     }
     DrawTexturePro(
         opensimplex,
-        (Rectangle){0, 0, (float)opensimplex.width, -(float)opensimplex.height},
+        (Rectangle){0, 0, (float)opensimplex.width, (float)opensimplex.height},
         (Rectangle){TEX_BOX_X, TEX_BOX_Y, (float)tex_w, (float)tex_h},
         (Vector2){0, 0},
         0.0f,
         WHITE);
+
+    // Export button
+    if (GuiButton(
+            (Rectangle){EXPORT_BTN_X, EXPORT_BTN_Y, EXPORT_BTN_W, EXPORT_BTN_H},
+            EXPORT_BTN_LABEL)) {
+        const int to_fit_dot_png = 4;
+        char finalname[EXPORT_FILENAME_MAX_SIZE + to_fit_dot_png + 1];
+        int index = 0;
+        TextAppend(finalname, filename, &index);
+        // Check for valid extension and make sure it is
+        if ((GetFileExtension(filename) == NULL) ||
+            !IsFileExtension(filename, ".png"))
+            TextAppend(finalname, ".png", &index);
+
+        // Exporting image
+        Image img = LoadImageFromTexture(_opensimplex_get());
+        if (ExportImage(img, finalname))
+            msgbox_export_success = true;
+        else
+            msgbox_export_failure = true;
+        UnloadImage(img);
+#ifdef WEB
+        // Downloading it if on web
+        if (strchr(finalname, '\'') == NULL)
+            emscripten_run_script(
+                TextFormat("saveFileFromMEMFSToDisk('%s','%s')",
+                           finalname,
+                           GetFileName(finalname)));
+#endif
+    }
+    GuiLabel((Rectangle){EXPORT_FILENAME_LABEL_X,
+                         EXPORT_FILENAME_LABEL_Y,
+                         EXPORT_FILENAME_LABEL_W,
+                         EXPORT_FILENAME_LABEL_H},
+             EXPORT_FILENAME_LABEL);
+    if (GuiTextBox((Rectangle){EXPORT_FILENAME_X,
+                               EXPORT_FILENAME_Y,
+                               EXPORT_FILENAME_W,
+                               EXPORT_FILENAME_H},
+                   filename,
+                   EXPORT_FILENAME_MAX_SIZE,
+                   editing_filename)) {
+        editing_filename = !editing_filename;
+    }
 
     // Seed controls
     GuiLabel((Rectangle){SEED_SELECTOR_LABEL_X,
@@ -124,6 +183,42 @@ void _layout_draw() {
                 &new_seamless);
     if (new_seamless != old_seamless) _opensimplex_set_seamless(new_seamless);
     old_seamless = new_seamless;
+
+    // Popups
+    if (msgbox_export_success || msgbox_export_failure) {
+        Color bg = GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR));
+        DrawRectangle(0,
+                      0,
+                      WINDOW_SIZE_X,
+                      WINDOW_SIZE_Y,
+                      (Color){bg.r, bg.g, bg.b, bg.a * 2 / 3});
+    }
+    if (msgbox_export_success) {
+        GuiUnlock();
+        int res = GuiMessageBox(
+            (Rectangle){(WINDOW_SIZE_X - EXPORT_MSGBOX_SUCCESS_W) / 2,
+                        (WINDOW_SIZE_Y - EXPORT_MSGBOX_SUCCESS_H) / 2,
+                        EXPORT_MSGBOX_SUCCESS_W,
+                        EXPORT_MSGBOX_SUCCESS_H},
+            EXPORT_MSGBOX_SUCCESS_TITLE,
+            EXPORT_MSGBOX_SUCCESS_MESSAGE,
+            EXPORT_MSGBOX_SUCCESS_BUTTONS);
+        GuiLock();
+        if (res >= 0) msgbox_export_success = false;
+    }
+    if (msgbox_export_failure) {
+        GuiUnlock();
+        int res = GuiMessageBox(
+            (Rectangle){(WINDOW_SIZE_X - EXPORT_MSGBOX_FAILURE_W) / 2,
+                        (WINDOW_SIZE_Y - EXPORT_MSGBOX_FAILURE_H) / 2,
+                        EXPORT_MSGBOX_FAILURE_W,
+                        EXPORT_MSGBOX_FAILURE_H},
+            EXPORT_MSGBOX_FAILURE_TITLE,
+            EXPORT_MSGBOX_FAILURE_MESSAGE,
+            EXPORT_MSGBOX_FAILURE_BUTTONS);
+        GuiLock();
+        if (res >= 0) msgbox_export_failure = false;
+    }
 
     EndDrawing();
 }
