@@ -24,6 +24,9 @@ static float range_min = TEX_START_RANGE_MIN;
 static float range_max = TEX_START_RANGE_MAX;
 static float power = TEX_START_POWER;
 static bool invert = TEX_START_INVERT;
+static int octaves = TEX_START_OCTAVES;
+static float persistence = TEX_START_PERSISTENCE;
+static float lacunarity = TEX_START_LACUNARITY;
 
 Color __calc_color(double value) {
     // Apply range
@@ -54,8 +57,34 @@ double __calc_value(int i, int j) {
                                             cos(TAU * (double)j / res_y) *
                                                 freq);
     }
-    return OpenSimplex2F_noise4_Classic(
-        ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
+    double sum = 0.0f;
+    double amplitude = 1.0f;
+    double frequency = freq;
+    for (int k = 0; k < octaves; k++) {
+        if (seamless) {
+            sum += OpenSimplex2F_noise4_Classic(
+                       ctx,
+                       sin(TAU * (double)i / res_x) * frequency +
+                           2 * freq * (double)k,
+                       cos(TAU * (double)i / res_x) * frequency +
+                           2 * freq * (double)k,
+                       sin(TAU * (double)j / res_y) * frequency +
+                           2 * freq * (double)k,
+                       cos(TAU * (double)j / res_y) * frequency +
+                           2 * freq * (double)k) *
+                   amplitude;
+        } else {
+            sum += OpenSimplex2F_noise4_Classic(ctx,
+                                                (double)i / FACTOR * frequency,
+                                                (double)j / FACTOR * frequency,
+                                                k,
+                                                0) *
+                   amplitude;
+        }
+        frequency *= lacunarity;
+        amplitude *= persistence;
+    }
+    return sum;
 }
 
 void __resize() {
@@ -132,5 +161,20 @@ void _opensimplex_set_power(float new_val) {
 
 void _opensimplex_set_invert(bool new_val) {
     invert = new_val;
+    __generate();
+}
+
+void _opensimplex_set_octaves(int new_val) {
+    octaves = new_val;
+    __generate();
+}
+
+void _opensimplex_set_persistence(float new_val) {
+    persistence = new_val;
+    __generate();
+}
+
+void _opensimplex_set_lacunarity(float new_val) {
+    lacunarity = new_val;
     __generate();
 }

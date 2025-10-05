@@ -2,6 +2,7 @@
 #include "defs.h"
 #include "opensimplex.h"
 #include "raylib.h"
+#include <math.h>
 #include <raygui.h>
 #include <stdbool.h>
 #include <string.h>
@@ -25,6 +26,12 @@ static float old_power = TEX_START_POWER;
 static float new_power = TEX_START_POWER;
 static bool old_invert = TEX_START_INVERT;
 static bool new_invert = TEX_START_INVERT;
+static float old_octaves = TEX_START_OCTAVES;
+static float new_octaves = TEX_START_OCTAVES;
+static float old_persistence = TEX_START_PERSISTENCE;
+static float new_persistence = TEX_START_PERSISTENCE;
+static float old_lacunarity = TEX_START_LACUNARITY;
+static float new_lacunarity = TEX_START_LACUNARITY;
 
 static bool editing_filename = false;
 static bool editing_seed = false;
@@ -254,6 +261,63 @@ void _layout_draw() {
                 &new_invert);
     if (new_invert != old_invert) _opensimplex_set_invert(new_invert);
     old_invert = new_invert;
+
+    // Octaves controls
+    GuiLabel((Rectangle){OCTAVES_SELECTOR_LABEL_X,
+                         OCTAVES_SELECTOR_LABEL_Y,
+                         OCTAVES_SELECTOR_LABEL_W,
+                         OCTAVES_SELECTOR_LABEL_H},
+             OCTAVES_SELECTOR_LABEL);
+    GuiSlider((Rectangle){OCTAVES_SELECTOR_X,
+                          OCTAVES_SELECTOR_Y,
+                          OCTAVES_SELECTOR_W,
+                          OCTAVES_SELECTOR_H},
+              OCTAVES_SELECTOR_LABEL_LEFT,
+              OCTAVES_SELECTOR_LABEL_RIGHT,
+              &new_octaves,
+              OCTAVES_SELECTOR_MIN,
+              OCTAVES_SELECTOR_MAX);
+    new_octaves = roundf(new_octaves);
+    if (new_octaves != old_octaves) _opensimplex_set_octaves((int)new_octaves);
+    old_octaves = new_octaves;
+
+    // Persistence controls
+    GuiLabel((Rectangle){PERSISTENCE_SELECTOR_LABEL_X,
+                         PERSISTENCE_SELECTOR_LABEL_Y,
+                         PERSISTENCE_SELECTOR_LABEL_W,
+                         PERSISTENCE_SELECTOR_LABEL_H},
+             PERSISTENCE_SELECTOR_LABEL);
+    GuiSlider((Rectangle){PERSISTENCE_SELECTOR_X,
+                          PERSISTENCE_SELECTOR_Y,
+                          PERSISTENCE_SELECTOR_W,
+                          PERSISTENCE_SELECTOR_H},
+              PERSISTENCE_SELECTOR_LABEL_LEFT,
+              PERSISTENCE_SELECTOR_LABEL_RIGHT,
+              &new_persistence,
+              PERSISTENCE_SELECTOR_MIN,
+              PERSISTENCE_SELECTOR_MAX);
+    if (new_persistence != old_persistence)
+        _opensimplex_set_persistence(new_persistence);
+    old_persistence = new_persistence;
+
+    // Lacunarity controls
+    GuiLabel((Rectangle){LACUNARITY_SELECTOR_LABEL_X,
+                         LACUNARITY_SELECTOR_LABEL_Y,
+                         LACUNARITY_SELECTOR_LABEL_W,
+                         LACUNARITY_SELECTOR_LABEL_H},
+             LACUNARITY_SELECTOR_LABEL);
+    GuiSlider((Rectangle){LACUNARITY_SELECTOR_X,
+                          LACUNARITY_SELECTOR_Y,
+                          LACUNARITY_SELECTOR_W,
+                          LACUNARITY_SELECTOR_H},
+              LACUNARITY_SELECTOR_LABEL_LEFT,
+              LACUNARITY_SELECTOR_LABEL_RIGHT,
+              &new_lacunarity,
+              LACUNARITY_SELECTOR_MIN,
+              LACUNARITY_SELECTOR_MAX);
+    if (new_lacunarity != old_lacunarity)
+        _opensimplex_set_lacunarity(new_lacunarity);
+    old_lacunarity = new_lacunarity;
 
     // Popups
     if (msgbox_export_success || msgbox_export_failure) {
