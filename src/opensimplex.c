@@ -58,10 +58,6 @@ double __calc_value(int i, int j) {
         ctx, (double)i / FACTOR * freq, (double)j / FACTOR * freq, 0, 0);
 }
 
-void __seed() {
-    OpenSimplex2F(seed, &ctx);
-}
-
 void __resize() {
     UnloadRenderTexture(final);
     final = LoadRenderTexture(res_x, res_y);
@@ -81,7 +77,7 @@ void __generate() {
 void _opensimplex_init() {
     final = LoadRenderTexture(res_x, res_y);
     SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
-    __seed();
+    OpenSimplex2F(seed, &ctx);
     __generate();
 }
 
@@ -97,7 +93,8 @@ Texture2D _opensimplex_get() {
 
 void _opensimplex_set_seed(int new_val) {
     seed = new_val;
-    __seed();
+    OpenSimplex2F_free(ctx);
+    OpenSimplex2F(seed, &ctx);
     __generate();
 }
 
