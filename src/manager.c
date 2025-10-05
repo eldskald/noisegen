@@ -11,6 +11,7 @@ void _manager_init() {
 #endif
     InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, APP_NAME " " APP_VERSION);
 
+    _layout_init();
     _opensimplex_init();
 
     SetExitKey(KEY_NULL);
