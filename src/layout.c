@@ -9,7 +9,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
-static char filename[EXPORT_FILENAME_MAX_SIZE + 1] = "";
+static char filename[EXPORT_FILENAME_MAX_SIZE + 1];
 static int seed = TEX_START_SEED;
 static int res_x = TEX_START_RES_X;
 static int res_y = TEX_START_RES_Y;
@@ -21,6 +21,10 @@ static float old_range_min = TEX_START_RANGE_MIN;
 static float new_range_min = TEX_START_RANGE_MIN;
 static float old_range_max = TEX_START_RANGE_MAX;
 static float new_range_max = TEX_START_RANGE_MAX;
+static float old_power = TEX_START_POWER;
+static float new_power = TEX_START_POWER;
+static bool old_invert = TEX_START_INVERT;
+static bool new_invert = TEX_START_INVERT;
 
 static bool editing_filename = false;
 static bool editing_seed = false;
@@ -29,6 +33,11 @@ static bool editing_res_y = false;
 
 static bool msgbox_export_success = false;
 static bool msgbox_export_failure = false;
+
+void _layout_init() {
+    int index = 0;
+    TextAppend(filename, EXPORT_FILENAME_START_VAL, &index);
+}
 
 void _layout_draw() {
     Texture2D opensimplex = _opensimplex_get();
@@ -170,8 +179,8 @@ void _layout_draw() {
     GuiSlider(
         (Rectangle){
             FREQ_SELECTOR_X, FREQ_SELECTOR_Y, FREQ_SELECTOR_W, FREQ_SELECTOR_H},
-        "",
-        "",
+        FREQ_SELECTOR_LABEL_LEFT,
+        FREQ_SELECTOR_LABEL_RIGHT,
         &new_freq,
         FREQ_SELECTOR_MIN,
         FREQ_SELECTOR_MAX);
@@ -218,6 +227,33 @@ void _layout_draw() {
         _opensimplex_set_range_max(new_range_max);
     old_range_min = new_range_min;
     old_range_max = new_range_max;
+
+    // Power controls
+    GuiLabel((Rectangle){POWER_SELECTOR_LABEL_X,
+                         POWER_SELECTOR_LABEL_Y,
+                         POWER_SELECTOR_LABEL_W,
+                         POWER_SELECTOR_LABEL_H},
+             POWER_SELECTOR_LABEL);
+    GuiSlider((Rectangle){POWER_SELECTOR_X,
+                          POWER_SELECTOR_Y,
+                          POWER_SELECTOR_W,
+                          POWER_SELECTOR_H},
+              POWER_SELECTOR_LABEL_LEFT,
+              POWER_SELECTOR_LABEL_RIGHT,
+              &new_power,
+              POWER_SELECTOR_MIN,
+              POWER_SELECTOR_MAX);
+    if (new_power != old_power) _opensimplex_set_power(new_power);
+
+    // Invert controls
+    GuiCheckBox((Rectangle){INVERT_SELECTOR_X,
+                            INVERT_SELECTOR_Y,
+                            INVERT_SELECTOR_W,
+                            INVERT_SELECTOR_H},
+                INVERT_SELECTOR_LABEL,
+                &new_invert);
+    if (new_invert != old_invert) _opensimplex_set_invert(new_invert);
+    old_invert = new_invert;
 
     // Popups
     if (msgbox_export_success || msgbox_export_failure) {

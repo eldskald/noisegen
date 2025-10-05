@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#define TWO 2.0f
+#define HALF 0.5f
 #define TAU PI * 2.0f
 #define RGBMAX 255
 #define FACTOR 72
@@ -20,11 +22,26 @@ static bool seamless = TEX_START_SEAMLESS;
 static float freq = TEX_START_FREQ;
 static float range_min = TEX_START_RANGE_MIN;
 static float range_max = TEX_START_RANGE_MAX;
+static float power = TEX_START_POWER;
+static bool invert = TEX_START_INVERT;
 
-Color __calc_color(double val) {
-    float clamped = Clamp((float)val, range_min, range_max);
-    int col =
-        (int)((clamped - range_min) / (range_max - range_min) * (float)RGBMAX);
+Color __calc_color(double value) {
+    // Apply range
+    float val = Clamp((float)value, range_min, range_max);
+    val = (val - range_min) / (range_max - range_min);
+
+    // Apply power
+    float k = powf(TWO, power - 1.0f);
+    if (val <= HALF)
+        val = k * powf(val, power);
+    else
+        val = 1.0f - k * powf(1.0f - val, power);
+
+    // Invert
+    if (invert) val = 1.0f - val;
+
+    // Final color
+    int col = (int)(val * RGBMAX);
     return (Color){col, col, col, RGBMAX};
 }
 
@@ -108,5 +125,15 @@ void _opensimplex_set_range_min(float new_val) {
 
 void _opensimplex_set_range_max(float new_val) {
     range_max = new_val;
+    __generate();
+}
+
+void _opensimplex_set_power(float new_val) {
+    power = new_val;
+    __generate();
+}
+
+void _opensimplex_set_invert(bool new_val) {
+    invert = new_val;
     __generate();
 }

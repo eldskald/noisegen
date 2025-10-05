@@ -11,5 +11,7 @@ void _opensimplex_set_seamless(bool new_val);
 void _opensimplex_set_freq(float new_val);
 void _opensimplex_set_range_min(float new_val);
 void _opensimplex_set_range_max(float new_val);
+void _opensimplex_set_power(float new_val);
+void _opensimplex_set_invert(bool new_val);
 
 Texture2D _opensimplex_get();
