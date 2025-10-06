@@ -191,6 +191,11 @@ void _layout_draw() {
         &new_freq,
         FREQ_SELECTOR_MIN,
         FREQ_SELECTOR_MAX);
+    GuiLabel((Rectangle){FREQ_SELECTOR_VALUE_X,
+                         FREQ_SELECTOR_VALUE_Y,
+                         FREQ_SELECTOR_VALUE_W,
+                         FREQ_SELECTOR_VALUE_H},
+             TextFormat("%.2f", new_freq));
     if (new_freq != old_freq) _opensimplex_set_freq(new_freq);
     old_freq = new_freq;
 
@@ -250,6 +255,11 @@ void _layout_draw() {
               &new_power,
               POWER_SELECTOR_MIN,
               POWER_SELECTOR_MAX);
+    GuiLabel((Rectangle){POWER_SELECTOR_VALUE_X,
+                         POWER_SELECTOR_VALUE_Y,
+                         POWER_SELECTOR_VALUE_W,
+                         POWER_SELECTOR_VALUE_H},
+             TextFormat("%.2f", new_power));
     if (new_power != old_power) _opensimplex_set_power(new_power);
 
     // Invert controls
@@ -277,6 +287,11 @@ void _layout_draw() {
               &new_octaves,
               OCTAVES_SELECTOR_MIN,
               OCTAVES_SELECTOR_MAX);
+    GuiLabel((Rectangle){OCTAVES_SELECTOR_VALUE_X,
+                         OCTAVES_SELECTOR_VALUE_Y,
+                         OCTAVES_SELECTOR_VALUE_W,
+                         OCTAVES_SELECTOR_VALUE_H},
+             TextFormat("%.0f", new_octaves));
     new_octaves = roundf(new_octaves);
     if (new_octaves != old_octaves) _opensimplex_set_octaves((int)new_octaves);
     old_octaves = new_octaves;
@@ -296,6 +311,11 @@ void _layout_draw() {
               &new_persistence,
               PERSISTENCE_SELECTOR_MIN,
               PERSISTENCE_SELECTOR_MAX);
+    GuiLabel((Rectangle){PERSISTENCE_SELECTOR_VALUE_X,
+                         PERSISTENCE_SELECTOR_VALUE_Y,
+                         PERSISTENCE_SELECTOR_VALUE_W,
+                         PERSISTENCE_SELECTOR_VALUE_H},
+             TextFormat("%.2f", new_persistence));
     if (new_persistence != old_persistence)
         _opensimplex_set_persistence(new_persistence);
     old_persistence = new_persistence;
@@ -315,6 +335,11 @@ void _layout_draw() {
               &new_lacunarity,
               LACUNARITY_SELECTOR_MIN,
               LACUNARITY_SELECTOR_MAX);
+    GuiLabel((Rectangle){LACUNARITY_SELECTOR_VALUE_X,
+                         LACUNARITY_SELECTOR_VALUE_Y,
+                         LACUNARITY_SELECTOR_VALUE_W,
+                         LACUNARITY_SELECTOR_VALUE_H},
+             TextFormat("%.2f", new_lacunarity));
     if (new_lacunarity != old_lacunarity)
         _opensimplex_set_lacunarity(new_lacunarity);
     old_lacunarity = new_lacunarity;
