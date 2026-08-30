@@ -15,7 +15,6 @@ void _manager_init() {
     _opensimplex_init();
 
     SetExitKey(KEY_NULL);
-    GuiLoadStyle("res/style_dark.rgs");
 #ifndef WEB
     SetTargetFPS(WINDOW_FPS);
 #endif
