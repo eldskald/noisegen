@@ -49,7 +49,7 @@ LINUX_COMPILE_FLAGS = -Wall -I./src -I./$(INCLUDE_DIR)
 LINUX_LINK_FLAGS = -L./$(LINUX_LIBS) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 WIN_COMPILE_FLAGS = -Wall -I./src -I./$(INCLUDE_DIR)
 WIN_LINK_FLAGS = -L./$(WIN_LIBS) -lraylib -lgdi32 -lwinmm -lpthread -static -static-libgcc -static-libstdc++
-WEB_COMPILE_FLAGS = -Os -Wall -I./src -I./$(INCLUDE_DIR) -I$(EMSCRIPTEN_PATH)/cache/sysroot/include --preload-file res --shell-file $(BUILD_WEB_SHELL) -DWEB -sUSE_GLFW=3 -sEXPORTED_RUNTIME_METHODS=HEAPF32,requestFullscreen -sGLOBAL_BASE=65536 -sTOTAL_MEMORY=134217728
+WEB_COMPILE_FLAGS = -Os -Wall -I./src -I./$(INCLUDE_DIR) -I$(EMSCRIPTEN_PATH)/cache/sysroot/include --shell-file $(BUILD_WEB_SHELL) -DWEB -sUSE_GLFW=3 -sEXPORTED_RUNTIME_METHODS=HEAPF32,requestFullscreen -sGLOBAL_BASE=65536 -sTOTAL_MEMORY=134217728
 WEB_LINK_FLAGS = -L./$(WEB_LIBS) -lraylib
 
 # Phony targets
@@ -69,22 +69,22 @@ dev:
 # Build a development build for web. It's web build with dev flags for logging and debugging
 web-dev:
 	mkdir -p $(WEB_DEV_DIR)
-	$(WEB_CC) $(call rwildcard,src,*.c) -o $(WEB_DEV_DIR)/index.html $(WEB_COMPILE_FLAGS) $(WEB_LINK_FLAGS) -DDEV -s ASSERTIONS=1
+	$(WEB_CC) $(call rwildcard,src,*.c) -o $(WEB_DEV_DIR)/index.html $(WEB_COMPILE_FLAGS) $(WEB_LINK_FLAGS) -DDEV -sASSERTIONS=1
 
 # Build for the Linux platform, puts the binary at the build target folder
 linux:
 	$(LINUX_CC) $(call rwildcard,src,*.c) -o $(APP_NAME).x64_86 $(LINUX_COMPILE_FLAGS) $(LINUX_LINK_FLAGS)
-	zip -r -q linux.zip $(APP_NAME).x64_86 res data
+	zip -r -q linux.zip $(APP_NAME).x64_86
 	rm $(APP_NAME).x64_86
 
 # Build for the Windows platform, puts the binary at the build target folder
 windows:
 	$(WIN_CC) $(call rwildcard,src,*.c) -o $(APP_NAME).exe $(WIN_COMPILE_FLAGS) $(WIN_LINK_FLAGS)
-	zip -r -q windows.zip $(APP_NAME).exe res data
+	zip -r -q windows.zip $(APP_NAME).exe
 	rm $(APP_NAME).exe
 
 # Build for Web
 webgl:
 	$(WEB_CC) $(call rwildcard,src,*.c) -o index.html $(WEB_COMPILE_FLAGS) $(WEB_LINK_FLAGS)
-	zip -r -q webgl.zip index.html index.js index.wasm index.data
+	zip -r -q webgl.zip index.html index.js index.wasm
 	rm index.*
