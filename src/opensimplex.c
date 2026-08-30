@@ -49,14 +49,6 @@ Color __calc_color(double value) {
 }
 
 double __calc_value(int i, int j) {
-    if (seamless) {
-        return OpenSimplex2F_noise4_Classic(ctx,
-                                            sin(TAU * (double)i / res_x) * freq,
-                                            cos(TAU * (double)i / res_x) * freq,
-                                            sin(TAU * (double)j / res_y) * freq,
-                                            cos(TAU * (double)j / res_y) *
-                                                freq);
-    }
     double sum = 0.0f;
     double amplitude = 1.0f;
     double frequency = freq;
