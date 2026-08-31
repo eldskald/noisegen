@@ -36,7 +36,7 @@ jobs:
           cp raylib/src/raymath.h include/
           cp raylib/src/external/glfw/include/GLFW/glfw3.h include/
           cp raygui/src/raygui.h include/
-          cp -r include/ cache/
+          cp -r include/ ~/cache/
 
       - name: Lint
         uses: cpp-linter/cpp-linter-action@v2
