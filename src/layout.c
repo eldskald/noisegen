@@ -111,7 +111,11 @@ void _layout_draw() {
             TextAppend(finalname, ".png", &index);
 
         // Exporting image
-        Image img = LoadImageFromTexture(_opensimplex_get());
+        Image img = {0};
+        if (noise == noise_type_opensimplex)
+            img = LoadImageFromTexture(_opensimplex_get());
+        else
+            img = LoadImageFromTexture(_cellular_get());
         if (ExportImage(img, finalname))
             msgbox_export_success = true;
         else
