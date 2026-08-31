@@ -77,6 +77,10 @@ To make a web build, you will need to have [emsdk](https://emscripten.org/docs/g
 
 If you can't compile either `raylib` or the game, pay attention to the error messages, might be some of these binaries that can't be found. Something might not be on your `PATH` or you did not set your `.env` correctly.
 
+## Credits
+
+Like in the original Unity project, the noise generators were by [KdotJPG](https://github.com/KdotJPG/OpenSimplex2) and [Justin](https://github.com/Scrawk/GPU-Voronoi-Noise). Thank you very much for your work!
+
 ## License
 
 This is an unlicensed project, meaning you can do whatever you want with it.
