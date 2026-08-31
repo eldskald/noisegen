@@ -11,7 +11,29 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Install raylib dependencies
+        run: sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+
+      - name: Cache raylib
+        id: raylib-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/cache
+          key: raylib-cache
+
+      - if: ${{ steps.sdl3-cache.outputs.cache-hit != 'true' }}
+        name: Install raylib
+        run: |
+          mkdir -p ./include ./cache
+          git clone --depth 1 --branch 5.5 https://github.com/raysan5/raylib.git
+          git clone --depth 1 --branch 4.0 https://github.com/raysan5/raygui.git
+          cp raylib/src/raylib.h include/
+          cp raylib/src/raymath.h include/
+          cp raylib/src/external/glfw/include/GLFW/glfw3.h include/
+          cp raygui/src/raygui.h include/
+          cp -r include/ cache/
 
       - name: Lint
         uses: cpp-linter/cpp-linter-action@v2
@@ -19,6 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          version: 22
           style: 'file'  # Use .clang-format config file
           tidy-checks: '' # Use .clang-tidy config file
           # only 'update' a single comment in a pull request thread.
