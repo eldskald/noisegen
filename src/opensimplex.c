@@ -1,16 +1,13 @@
 #include "opensimplex.h"
-#include "OpenSimplex2F.h"
 #include "defs.h"
 #include <math.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdbool.h>
-#include <stdlib.h>
 
-#define FACTOR 72
-
+static Shader os_noise_shader = {0};
+static RenderTexture2D prop = {0};
 static RenderTexture2D final = {0};
-static struct OpenSimplex2F_context *ctx = NULL;
 static int seed = START_SEED;
 static int res_x = START_RES_X;
 static int res_y = START_RES_Y;
@@ -24,84 +21,84 @@ static int octaves = START_OCTAVES;
 static float persistence = START_PERSISTENCE;
 static float lacunarity = START_LACUNARITY;
 
-static Color __calc_color(double value) {
-    // Apply range
-    float val = Clamp((float)value, range_min, range_max);
-    val = (val - range_min) / (range_max - range_min);
-
-    // Apply power
-    float k = powf(TWO, power - 1.0f);
-    if (val <= HALF)
-        val = k * powf(val, power);
-    else
-        val = 1.0f - k * powf(1.0f - val, power);
-
-    // Invert
-    if (invert) val = 1.0f - val;
-
-    // Final color
-    int col = (int)(val * RGBMAX);
-    return (Color){col, col, col, RGBMAX};
+static void __set_shader_property_(const char *property,
+                                   const void *value,
+                                   int uniform_type) {
+    int uniform_loc = GetShaderLocation(os_noise_shader, property);
+    SetShaderValue(os_noise_shader, uniform_loc, value, uniform_type);
 }
 
-static double __calc_value(int i, int j) {
-    double sum = 0.0f;
-    double amplitude = 1.0f;
-    double frequency = freq;
-    for (int k = 0; k < octaves; k++) {
-        if (seamless) {
-            sum += OpenSimplex2F_noise4_Classic(
-                       ctx,
-                       sin(TAU * (double)i / res_x) * frequency +
-                           2 * freq * (double)k,
-                       cos(TAU * (double)i / res_x) * frequency +
-                           2 * freq * (double)k,
-                       sin(TAU * (double)j / res_y) * frequency +
-                           2 * freq * (double)k,
-                       cos(TAU * (double)j / res_y) * frequency +
-                           2 * freq * (double)k) *
-                   amplitude;
-        } else {
-            sum += OpenSimplex2F_noise4_Classic(ctx,
-                                                (double)i / FACTOR * frequency,
-                                                (double)j / FACTOR * frequency,
-                                                k,
-                                                0) *
-                   amplitude;
-        }
-        frequency *= lacunarity;
-        amplitude *= persistence;
+static float __compute_norm_factor(int octaves_in, float persistence_in) {
+    float norm = 0.0f;
+    for (int i = 0; i < octaves_in; i++) {
+        norm += powf(persistence_in, (float)i);
     }
-    return sum;
+    return norm;
+}
+
+static void __generate_os() {
+    __set_shader_property_("u_seed", &seed, SHADER_UNIFORM_INT);
+    __set_shader_property_("u_frequency", &freq, SHADER_UNIFORM_FLOAT);
+    __set_shader_property_("u_seamless", &seamless, SHADER_UNIFORM_INT);
+
+    __set_shader_property_("u_power", &power, SHADER_UNIFORM_FLOAT);
+    __set_shader_property_("u_rangeMin", &range_min, SHADER_UNIFORM_FLOAT);
+    __set_shader_property_("u_rangeMax", &range_max, SHADER_UNIFORM_FLOAT);
+    __set_shader_property_("u_inverted", &invert, SHADER_UNIFORM_INT);
+
+    __set_shader_property_("u_octaves", &octaves, SHADER_UNIFORM_INT);
+    __set_shader_property_("u_persistence", &persistence, SHADER_UNIFORM_FLOAT);
+    __set_shader_property_("u_lacunarity", &lacunarity, SHADER_UNIFORM_FLOAT);
+
+    float norm_factor = __compute_norm_factor(octaves, persistence);
+    __set_shader_property_("u_normFactor", &norm_factor, SHADER_UNIFORM_FLOAT);
+
+    BeginTextureMode(prop);
+    ClearBackground(BLACK);
+    EndTextureMode();
+
+    BeginTextureMode(final);
+    ClearBackground(BLACK);
+    BeginShaderMode(os_noise_shader);
+    DrawTexture(prop.texture, 0, 0, WHITE);
+    EndShaderMode();
+    EndTextureMode();
 }
 
 static void __resize_os() {
+    UnloadRenderTexture(prop);
+    prop = LoadRenderTexture(res_x, res_y);
+    SetTextureFilter(prop.texture, TEXTURE_FILTER_BILINEAR);
+
     UnloadRenderTexture(final);
     final = LoadRenderTexture(res_x, res_y);
     SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
 }
 
-static void __generate_os() {
-    BeginTextureMode(final);
-    for (int i = 0; i < res_x; i++) {
-        for (int j = 0; j < res_y; j++) {
-            DrawPixel(i, j, __calc_color(__calc_value(i, j)));
-        }
-    }
-    EndTextureMode();
-}
-
 void _opensimplex_init() {
+    prop = LoadRenderTexture(res_x, res_y);
+    SetTextureFilter(prop.texture, TEXTURE_FILTER_BILINEAR);
+
     final = LoadRenderTexture(res_x, res_y);
     SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
-    OpenSimplex2F(seed, &ctx);
+
+    char vert[] = {
+#embed "shaders/base.vert" suffix(, '\0')
+    };
+
+    char frag[] = {
+#embed "shaders/opensimplex.frag" suffix(, '\0')
+    };
+
+    os_noise_shader = LoadShaderFromMemory(vert, frag);
+
     __generate_os();
 }
 
 void _opensimplex_stop() {
+    UnloadRenderTexture(prop);
     UnloadRenderTexture(final);
-    OpenSimplex2F_free(ctx);
-    OpenSimplex2F_shutdown();
+    UnloadShader(os_noise_shader);
 }
 
 Texture2D _opensimplex_get() {
@@ -110,8 +107,6 @@ Texture2D _opensimplex_get() {
 
 void _opensimplex_set_seed(int new_val) {
     seed = new_val;
-    OpenSimplex2F_free(ctx);
-    OpenSimplex2F(seed, &ctx);
     __generate_os();
 }
 

@@ -79,7 +79,7 @@ If you can't compile either `raylib` or the game, pay attention to the error mes
 
 ## Credits
 
-Like in the original Unity project, the noise generators were by [KdotJPG](https://github.com/KdotJPG/OpenSimplex2) and [Justin](https://github.com/Scrawk/GPU-Voronoi-Noise). Thank you very much for your work!
+The noise shaders were done by [Hugh Kennedy](https://github.com/hughsk/glsl-noise) and [Justin](https://github.com/Scrawk/GPU-Voronoi-Noise). Thank you very much for your work!
 
 ## License
 
