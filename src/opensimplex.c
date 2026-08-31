@@ -7,28 +7,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define TWO 2.0f
-#define HALF 0.5f
-#define TAU PI * 2.0f
-#define RGBMAX 255
 #define FACTOR 72
 
 static RenderTexture2D final = {0};
 static struct OpenSimplex2F_context *ctx = NULL;
-static int seed = TEX_START_SEED;
-static int res_x = TEX_START_RES_X;
-static int res_y = TEX_START_RES_Y;
-static bool seamless = TEX_START_SEAMLESS;
-static float freq = TEX_START_FREQ;
-static float range_min = TEX_START_RANGE_MIN;
-static float range_max = TEX_START_RANGE_MAX;
-static float power = TEX_START_POWER;
-static bool invert = TEX_START_INVERT;
-static int octaves = TEX_START_OCTAVES;
-static float persistence = TEX_START_PERSISTENCE;
-static float lacunarity = TEX_START_LACUNARITY;
+static int seed = START_SEED;
+static int res_x = START_RES_X;
+static int res_y = START_RES_Y;
+static bool seamless = START_SEAMLESS;
+static float freq = START_FREQ;
+static float range_min = START_RANGE_MIN;
+static float range_max = START_RANGE_MAX;
+static float power = START_POWER;
+static bool invert = START_INVERT;
+static int octaves = START_OCTAVES;
+static float persistence = START_PERSISTENCE;
+static float lacunarity = START_LACUNARITY;
 
-Color __calc_color(double value) {
+static Color __calc_color(double value) {
     // Apply range
     float val = Clamp((float)value, range_min, range_max);
     val = (val - range_min) / (range_max - range_min);
@@ -48,7 +44,7 @@ Color __calc_color(double value) {
     return (Color){col, col, col, RGBMAX};
 }
 
-double __calc_value(int i, int j) {
+static double __calc_value(int i, int j) {
     double sum = 0.0f;
     double amplitude = 1.0f;
     double frequency = freq;
@@ -79,13 +75,13 @@ double __calc_value(int i, int j) {
     return sum;
 }
 
-void __resize() {
+static void __resize_os() {
     UnloadRenderTexture(final);
     final = LoadRenderTexture(res_x, res_y);
     SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
 }
 
-void __generate() {
+static void __generate_os() {
     BeginTextureMode(final);
     for (int i = 0; i < res_x; i++) {
         for (int j = 0; j < res_y; j++) {
@@ -99,7 +95,7 @@ void _opensimplex_init() {
     final = LoadRenderTexture(res_x, res_y);
     SetTextureFilter(final.texture, TEXTURE_FILTER_BILINEAR);
     OpenSimplex2F(seed, &ctx);
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_stop() {
@@ -116,57 +112,57 @@ void _opensimplex_set_seed(int new_val) {
     seed = new_val;
     OpenSimplex2F_free(ctx);
     OpenSimplex2F(seed, &ctx);
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_res(int new_x, int new_y) {
     res_x = new_x;
     res_y = new_y;
-    __resize();
-    __generate();
+    __resize_os();
+    __generate_os();
 }
 
 void _opensimplex_set_seamless(bool new_val) {
     seamless = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_freq(float new_val) {
     freq = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_range_min(float new_val) {
     range_min = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_range_max(float new_val) {
     range_max = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_power(float new_val) {
     power = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_invert(bool new_val) {
     invert = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_octaves(int new_val) {
     octaves = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_persistence(float new_val) {
     persistence = new_val;
-    __generate();
+    __generate_os();
 }
 
 void _opensimplex_set_lacunarity(float new_val) {
     lacunarity = new_val;
-    __generate();
+    __generate_os();
 }

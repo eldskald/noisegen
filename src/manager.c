@@ -1,4 +1,5 @@
 #include "manager.h"
+#include "cellular.h"
 #include "defs.h"
 #include "layout.h"
 #include "opensimplex.h"
@@ -13,6 +14,7 @@ void _manager_init() {
 
     _layout_init();
     _opensimplex_init();
+    _cellular_init();
 
     SetExitKey(KEY_NULL);
 #ifndef WEB
@@ -22,6 +24,7 @@ void _manager_init() {
 
 void _manager_stop() {
     _opensimplex_stop();
+    _cellular_stop();
     CloseWindow();
 }
 

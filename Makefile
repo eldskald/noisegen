@@ -34,7 +34,7 @@ ifeq ($(DEV_PLATFORM), Windows)
 	DEV_LIBS := $(WIN_LIBS)
 endif
 
-DEV_COMPILE_FLAGS = -Wall -I./src -I./$(INCLUDE_DIR) -DDEV -fsanitize=address
+DEV_COMPILE_FLAGS = -std=c23 --embed-dir=./src -Wall -I./src -I./$(INCLUDE_DIR) -DDEV -fsanitize=address
 DEV_LINK_FLAGS = -L./$(DEV_LIBS)
 ifeq ($(DEV_PLATFORM), Linux)
 	DEV_LINK_FLAGS += -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
@@ -45,11 +45,11 @@ ifeq ($(DEV_PLATFORM), Windows)
 	EXT := .exe
 endif
 
-LINUX_COMPILE_FLAGS = -Wall -I./src -I./$(INCLUDE_DIR)
+LINUX_COMPILE_FLAGS = -std=c23 --embed-dir=./src -Wall -I./src -I./$(INCLUDE_DIR)
 LINUX_LINK_FLAGS = -L./$(LINUX_LIBS) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-WIN_COMPILE_FLAGS = -Wall -I./src -I./$(INCLUDE_DIR)
+WIN_COMPILE_FLAGS = -std=c23 --embed-dir=./src -Wall -I./src -I./$(INCLUDE_DIR)
 WIN_LINK_FLAGS = -L./$(WIN_LIBS) -lraylib -lgdi32 -lwinmm -lpthread -static -static-libgcc -static-libstdc++
-WEB_COMPILE_FLAGS = -Os -Wall -I./src -I./$(INCLUDE_DIR) -I$(EMSCRIPTEN_PATH)/cache/sysroot/include --shell-file $(BUILD_WEB_SHELL) -DWEB -sUSE_GLFW=3 -sEXPORTED_RUNTIME_METHODS=HEAPF32,requestFullscreen -sGLOBAL_BASE=65536 -sTOTAL_MEMORY=134217728
+WEB_COMPILE_FLAGS = -std=c23 --embed-dir=./src -Os -Wall -I./src -I./$(INCLUDE_DIR) -I$(EMSCRIPTEN_PATH)/cache/sysroot/include --shell-file $(BUILD_WEB_SHELL) -DWEB -sUSE_GLFW=3 -sEXPORTED_RUNTIME_METHODS=HEAPF32,requestFullscreen -sGLOBAL_BASE=65536 -sTOTAL_MEMORY=134217728
 WEB_LINK_FLAGS = -L./$(WEB_LIBS) -lraylib
 
 # Phony targets
