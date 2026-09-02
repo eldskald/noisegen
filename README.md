@@ -1,10 +1,8 @@
 # noisegen
 
-<img src="images/os1.png" alt="Open Simplex noise example" width=45%/> <img src="images/os2.png" alt="Open Simplex noise example" width=45%/>
+<img src="images/os1.png" alt="Open Simplex noise example" width=30%/> <img src="images/ce1.png" alt="Cellular noise example" width=30%/> <img src="images/ce3.png" alt="Cellular noise example" width=30%/>
 
-<img src="images/ce1.png" alt="Cellular noise example" width=45%/> <img src="images/ce2.png" alt="Cellular noise example" width=45%/>
-
-<img src="images/ce3.png" alt="Cellular noise example" width=45%/> <img src="images/ce4.png" alt="Cellular noise example" width=45%/>
+<img src="images/os2.png" alt="Open Simplex noise example" width=30%/> <img src="images/ce2.png" alt="Cellular noise example" width=30%/> <img src="images/ce4.png" alt="Cellular noise example" width=30%/>
 
 This is an app to generate and save noise textures for use in game development and graphics programming, with lots of settings. There are a couple of these generators online that I've seen, but none that generated seamless noise that cycles on itself in all directions, which is very important for making shaders. Any technical artist knows that noise is used everywhere in all sorts of effects, and most times sampling from a texture is more efficient than generating it but in order to do that you need the textures to be seamless. The Godot engine has an internal noise texture generator and they can make them seamless, but if you're anywhere else you're out of luck. Well, no longer!
 
@@ -40,7 +38,8 @@ make         # All of the above
 ## Developing
 
 If you want to mess around the source files, you can run `bin/dev` to quickly build and run and then delete the build when you close it. You can also run `bin/web-dev` to build for WebGL and serve the files for you to access it on `localhost:3000` or whatever port you set on your `.env` file.
-To format and lint the whole project, run the following:
+
+To format and lint the whole project, run the following binaries. Take into account you need `clang-tidy` and `clang-format`.
 
 ```console
 bin/format
