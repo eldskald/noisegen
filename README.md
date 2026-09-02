@@ -1,18 +1,26 @@
 # noisegen
 
-This project is me practicing more low level programming with raylib. This is kinda like a port of my [Unity Support Textures Generator](https://github.com/eldskald/unity-support-textures-generators) project, this time as a standalone app instead of a menu inside Unity, made with C and raylib.
+<img src="images/os1.png" alt="Open Simplex noise example" width=45%/> <img src="images/os2.png" alt="Open Simplex noise example" width=45%/>
 
-## Dependencies
+<img src="images/ce1.png" alt="Cellular noise example" width=45%/> <img src="images/ce2.png" alt="Cellular noise example" width=45%/>
 
-This project is using the GNU Toolchain for C/C++ development, in particular, the [GNU Compiler Collection](https://www.gnu.org/software/gcc), the [MinGW-w64](https://www.mingw-w64.org/) compilers and [make](https://www.gnu.org/software/make). If you want to make an HTML5 build, you need to install [emsdk](https://emscripten.org/docs/getting_started/downloads.html). See more details on below.
+<img src="images/ce3.png" alt="Cellular noise example" width=45%/> <img src="images/ce4.png" alt="Cellular noise example" width=45%/>
 
-You'll also need basic libraries used by [raylib](https://github.com/raysan5/raylib) to do graphics and audio. More info on their [wiki](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux).
+This is an app to generate and save noise textures for use in game development and graphics programming, with lots of settings. There are a couple of these generators online that I've seen, but none that generated seamless noise that cycles on itself in all directions, which is very important for making shaders. Any technical artist knows that noise is used everywhere in all sorts of effects, and most times sampling from a texture is more efficient than generating it but in order to do that you need the textures to be seamless. The Godot engine has an internal noise texture generator and they can make them seamless, but if you're anywhere else you're out of luck. Well, no longer!
+
+This project is a port of my [Unity Support Textures Generator](https://github.com/eldskald/unity-support-textures-generators) project. This one doesn't run inside Unity, you can use it on its itch
+
+## Installing
+
+You can download or you use the app in your browser at [eldskald.itch.io/noisegen](https://eldskald.itch.io/noisegen). Just unzip and run, it's just a self contained executable.
+
+## Building
+
+It's just C and glsl with [raylib](https://github.com/raysan5/raylib) and [raygui](https://github.com/raysan5/raygui), as well as [emsdk](https://emscripten.org/docs/getting_started/downloads.html) to compile to WebGL and [MinGW](https://www.mingw-w64.org/) to compile to windows, so you might need those. This was built with emsdk 4.0.10 specifically, so if it breaks you can try to build with this version.
 
 It's also using [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the code, as well as [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) to lint.
 
-## Getting started
-
-After cloning the repository, setup your `.env` file by copying the [.env.example](.env.example) and renaming it to `.env`, and then setting the values. The default values are for working on Linux. If you are working on Windows, use WSL.
+Clone the project and setup a `.env` file by copying [.env.example](.env.example) and changing some of its settings if you need to. Default values are for Linux. I recommend WSL if you're working on Windows.
 
 Then, run the following to install dependencies:
 
@@ -20,17 +28,7 @@ Then, run the following to install dependencies:
 bin/install-dependencies
 ```
 
-This will install [raylib](https://github.com/raysan5/raylib) and [raygui](https://github.com/raysan5/raygui). You need [emsdk](https://emscripten.org/docs/getting_started/downloads.html) and its path on `.env` to compile it for web. If you don't have it, it will still work for the desktop versions. More info on the web version later. We are also using [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) and [clang-format](https://clang.llvm.org/docs/ClangFormat.html) for linting and formatting.
-
-To erase dependencies and builds in case you want to redo everything, run:
-
-```console
-make clean
-```
-
-## Running and building
-
-To make a build, run one of these commands:
+Having done both things, run the following to build it:
 
 ```console
 make linux   # Makes a Linux build
@@ -39,31 +37,9 @@ make webgl   # Makes a WebGL (HTML5) build
 make         # All of the above
 ```
 
-This will create `linux.zip`, `windows.zip` and `webgl.zip` that can be sent to anyone to unzip and run the game.
+## Developing
 
-To build and run a development build, run the following:
-
-```console
-bin/dev
-```
-
-It will make a build, run it and delete it after you close it. Easy for quickly compiling changes and running the game with them.
-
-You can also make a development build that won't be ran automatically or deleted after you closing by running this:
-
-```console
-make dev
-make web-dev
-```
-
-This will put the build at the project root. Can be ran on a debugger and can be sent to testers to use with the built-in dev tools. The web version builds it for web, with logging, sanitizing and assertions enabled. Don't run `make web-dev` directly, instead, use the following:
-
-```console
-bin/web-dev
-```
-
-This will run `make web-dev` and serve it with `python -m http.server` on the port set on your `.env` file so you can run it on your browser.
-
+If you want to mess around the source files, you can run `bin/dev` to quickly build and run and then delete the build when you close it. You can also run `bin/web-dev` to build for WebGL and serve the files for you to access it on `localhost:3000` or whatever port you set on your `.env` file.
 To format and lint the whole project, run the following:
 
 ```console
