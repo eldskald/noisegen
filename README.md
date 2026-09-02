@@ -79,7 +79,7 @@ If you can't compile either `raylib` or the game, pay attention to the error mes
 
 ## Credits
 
-The noise shaders were done by [Hugh Kennedy](https://github.com/hughsk/glsl-noise) and [Justin](https://github.com/Scrawk/GPU-Voronoi-Noise). Thank you very much for your work!
+The noise gen shaders were done by [Hugh Kennedy](https://github.com/hughsk/glsl-noise) and [Justin](https://github.com/Scrawk/GPU-Voronoi-Noise), I only added FBM, power, range and seamless and the other settings. Thank them very much for their work!
 
 ## License
 

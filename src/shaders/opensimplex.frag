@@ -12,12 +12,7 @@ uniform int u_octaves;
 uniform float u_persistence;
 uniform float u_lacunarity;
 
-uniform float u_normFactor;
-uniform float u_rangeMin;
-uniform float u_rangeMax;
-uniform float u_power;
-uniform bool u_inverted;
-
+#define NOISE_BOUND 8.0
 #define MAX_OCTAVES 8
 #define TAU 6.28318530718
 
@@ -169,6 +164,15 @@ vec4 torusMapping(vec2 i) {
     return o;
 }
 
+// Packs a 16-bit float in [0, 1) on two color channels. We do this because
+// we can't use R32G32B32A32 textures due to WebGL.
+vec2 packFloat(float v) {
+    vec2 enc = vec2(1.0, 255.0) * v;
+    enc = fract(enc);
+    enc.x -= enc.y * (1.0 / 255.0);
+    return enc;
+}
+
 void main() {
     vec4 coords;
     if (u_seamless) {
@@ -177,9 +181,6 @@ void main() {
         coords = vec4(uv * 5.0, 0.0, 0.0);
     }
 
-    // Decorrelated per-axis offset derived from the seed. Each axis
-    // uses a different multiplier before hashing so the four values
-    // don't move together.
     float seedF = float(u_seed);
     vec4 seedOffset = vec4(
             hash1(seedF * 12.9898) * 289.0,
@@ -209,17 +210,10 @@ void main() {
         amp *= u_persistence;
     }
 
-    noise = noise / u_normFactor;
-    noise = (noise - u_rangeMin) / (u_rangeMax - u_rangeMin);
-    noise = clamp(noise, 0.0, 1.0);
+    float encoded = clamp((noise + NOISE_BOUND) / (2.0 * NOISE_BOUND), 0.0, 1.0);
+    vec2 pack = packFloat(encoded);
 
-    float k = pow(2.0, u_power - 1.0);
-    noise = (noise <= 0.5) ? (k * pow(noise, u_power)) : noise;
-    noise = (noise >= 0.5) ? (1.0 - k * pow(1.0 - noise, u_power)) : noise;
-
-    if (u_inverted) {
-        noise = 1.0 - noise;
-    }
-
-    gl_FragColor = vec4(noise, noise, noise, 1.0);
+    // We put the packed float in both RG and BA so minmax_reduce.frag can treat
+    // RG as min and BA as max without breaking. Read it for more info.
+    gl_FragColor = vec4(pack, pack);
 }

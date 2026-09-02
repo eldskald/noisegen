@@ -162,6 +162,7 @@ void _layout_draw() {
                     editing_res_x)) {
         editing_res_x = !editing_res_x;
         _opensimplex_set_res(res_x, res_y);
+        _cellular_set_res(res_x, res_y);
     }
     if (GuiValueBox((Rectangle){RES_SELECTOR_Y_X,
                                 RES_SELECTOR_Y_Y,
@@ -317,6 +318,7 @@ void _layout_draw() {
                              OS_POWER_SELECTOR_VALUE_H},
                  TextFormat("%.2f", os_new_power));
         if (os_new_power != os_old_power) _opensimplex_set_power(os_new_power);
+        os_old_power = os_new_power;
 
         // Invert controls
         GuiCheckBox((Rectangle){OS_INVERT_SELECTOR_X,
@@ -540,6 +542,7 @@ void _layout_draw() {
                              CE_POWER_SELECTOR_VALUE_H},
                  TextFormat("%.2f", ce_new_power));
         if (ce_new_power != ce_old_power) _cellular_set_power(ce_new_power);
+        ce_old_power = ce_new_power;
 
         // Invert controls
         GuiCheckBox((Rectangle){CE_INVERT_SELECTOR_X,
