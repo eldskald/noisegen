@@ -175,6 +175,7 @@ void _layout_draw() {
                     editing_res_y)) {
         editing_res_y = !editing_res_y;
         _opensimplex_set_res(res_x, res_y);
+        _cellular_set_res(res_x, res_y);
     }
 
     // Noise type controls
