@@ -34,6 +34,7 @@ jobs:
           git clone --depth 1 --branch 4.0 https://github.com/raysan5/raygui.git
           cp raylib/src/raylib.h include/
           cp raylib/src/raymath.h include/
+          cp raylib/src/rlgl.h include/
           cp raylib/src/external/glfw/include/GLFW/glfw3.h include/
           cp raygui/src/raygui.h include/
           cp -r include/ ~/cache/
@@ -45,8 +46,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: 22
-          style: 'file'  # Use .clang-format config file
-          tidy-checks: '' # Use .clang-tidy config file
+          style: "file" # Use .clang-format config file
+          tidy-checks: "" # Use .clang-tidy config file
           # only 'update' a single comment in a pull request thread.
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
 

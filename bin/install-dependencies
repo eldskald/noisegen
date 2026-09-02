@@ -17,6 +17,7 @@ make PLATFORM=PLATFORM_DESKTOP
 cp libraylib.a ../../lib/linux
 cp raylib.h ../../include
 cp raymath.h ../../include
+cp rlgl.h ../../include
 cp external/glfw/include/GLFW/glfw3.h ../../include
 cd ../..
 rm -rf raylib
