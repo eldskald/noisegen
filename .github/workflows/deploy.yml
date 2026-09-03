@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
 
 env:
   ITCH_USERNAME: eldskald 
@@ -17,6 +15,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v2
+        with:
+          version: 16
+          platform: x64
 
       - name: Install MinGW
         uses: egor-tensin/setup-mingw@v2
@@ -32,22 +36,21 @@ jobs:
       - name: Install raylib dependencies
         run: sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
 
-      - name: Cache raylib build
-        id: raylib-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/cache
-          key: raylib-build-cache
+      - name: Install raylib
+        run: bin/install-dependencies
 
-      - if: ${{ steps.sdl3-cache.outputs.cache-hit != 'true' }}
-        name: Build raylib
+      - name: Build for linux
+        run: make linux
+
+      - name: Build for windows
         run: |
-          bin/install-dependencies
-          cp -r include/ ~/cache/
-          cp -r lib/ ~/cache/
+          docker run --rm -v "$PWD:/workspace" -w /workspace fedora:latest bash -c "
+            dnf install -y mingw64-gcc make zip findutils &&
+            make windows
+          "
 
-      - name: Build
-        run: make
+      - name: Build for WebGL
+        run: make webgl
 
       - name: Deploy web
         uses: KikimoraGames/itch-publish@v0.0.3
