@@ -1,0 +1,80 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+
+env:
+  ITCH_USERNAME: eldskald 
+  ITCH_APP_ID: noisegen
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
+      - name: Install emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.10
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Install raylib dependencies
+        run: sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+
+      - name: Cache raylib build
+        id: raylib-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/cache
+          key: raylib-build-cache
+
+      - if: ${{ steps.sdl3-cache.outputs.cache-hit != 'true' }}
+        name: Build raylib
+        run: |
+          bin/install-dependencies
+          cp -r include/ ~/cache/
+          cp -r lib/ ~/cache/
+
+      - name: Build
+        run: make
+
+      - name: Deploy web
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          gameData: ./webgl.zip
+          itchUsername: ${{ env.ITCH_USERNAME }}
+          itchGameId: ${{ env.ITCH_APP_ID }}
+          buildChannel: webgl 
+          buildNumber: ${{ github.ref_name }}
+
+      - name: Deploy linux
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          gameData: ./linux.zip
+          itchUsername: ${{ env.ITCH_USERNAME }}
+          itchGameId: ${{ env.ITCH_APP_ID }}
+          buildChannel: linux 
+          buildNumber: ${{ github.ref_name }}
+
+      - name: Deploy windows
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          gameData: ./windows.zip
+          itchUsername: ${{ env.ITCH_USERNAME }}
+          itchGameId: ${{ env.ITCH_APP_ID }}
+          buildChannel: windows 
+          buildNumber: ${{ github.ref_name }}
